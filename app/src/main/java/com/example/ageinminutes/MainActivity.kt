@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -27,10 +29,35 @@ class MainActivity : AppCompatActivity() {
         val day = myCalendar.get(Calendar.DAY_OF_MONTH)
 
         // Open Date picker dialog
-        DatePickerDialog(this,
+        val dpd = DatePickerDialog(this,
             DatePickerDialog.OnDateSetListener {
-                    view, year, month, day ->
+                    view, selectedYear, selectedMonth, selectedDay ->
+                // Create selected date string
+                val selectedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear"
 
-            }, year, month, day).show()
+                // Format date
+                val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+                val formattedDate = sdf.parse(selectedDate)
+
+                // Set Date Text in UI
+                val selectedDateText = findViewById<TextView>(R.id.selectedDate)
+                selectedDateText.text = selectedDate
+
+                // Get time of selected date in minutes
+                val selectedDateInMinutes = formattedDate!!.time / 60000
+
+                // Get current date
+                val currentDate = sdf.parse(sdf.format(System.currentTimeMillis()))
+                val currentDateInMinutes = currentDate!!.time / 60000
+                val differenceInMinutes = currentDateInMinutes - selectedDateInMinutes
+
+                // Set Time Text in UI
+                val ageInMinutes = findViewById<TextView>(R.id.ageInMinutes)
+                ageInMinutes.text = "$differenceInMinutes"
+
+            }, year, month, day)
+
+        dpd.datePicker.maxDate = Date().time - 86400000
+        dpd.show()
     }
 }
